@@ -1,56 +1,48 @@
-
+# Configure the Azure provider
 terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.0"
+      version = "~>3.0"
     }
   }
   backend "azurerm" {
-    resource_group_name   = "ap_rg"
-    storage_account_name  = "terraform5243"
-    container_name        = "container5243"
-    key                   = "terraform.tfstate"
+      resource_group_name  = "appumgr"
+      storage_account_name = "terraform5243"
+      container_name       = "tfstate"
+      key                  = "terraform.tfstate"
   }
 }
-
 provider "azurerm" {
   features {}
 }
 
 
+# Create the resource group
 resource "azurerm_resource_group" "rg" {
   name     = "ap_rg"
-  location = "west US"
+  location = "eastus"
 }
 
-resource "azurerm_app_service_plan" "appserviceplan" {
-  name                = azurerm_resource_group.rg.name
+# Create the Linux App Service Plan
+resource "azurerm_service_plan" "appserviceplan" {
+  name                = "webappplaneast"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-
-  # Correct SKU configuration using a block
-  sku {
-    tier = "Basic"  # B for Basic tier
-    size = "B1"     # SKU size
-  }
-
-  # Specify the kind of app service plan, e.g., for Linux or Windows
-  kind = "Linux"  # Use "Linux" or "Windows"
-  reserved = true  # This must be set to true for Linux
+  os_type             = "Linux"
+  sku_name            = "B1"
 }
 
-
-resource "azurerm_Linux_web_app" "webapp" {
-  name                = "Webapp524333"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  service_plan_id     = azurerm_app_service_plan.appserviceplan.id
-  http_only           = true
-
-  site_config {
-    dotnet_framework_version = "v4.0"
-  }
+# Create the web app, pass in the App Service Plan ID
+resource "azurerm_linux_web_app" "webapp" {
+  name                  = "webapp-appu"
+  location              = azurerm_resource_group.rg.location
+  resource_group_name   = azurerm_resource_group.rg.name
+  service_plan_id       = azurerm_service_plan.appserviceplan.id
+  https_only            = true
+  
+  site_config { 
+    minimum_tls_version = "1.2"
 }
 
-
+}
