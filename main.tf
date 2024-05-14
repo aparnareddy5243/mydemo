@@ -21,7 +21,7 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "rg" {
   name     = "ap_rg"
-  location = "East US"
+  location = "west US"
 }
 
 resource "azurerm_app_service_plan" "appserviceplan" {
@@ -42,7 +42,7 @@ resource "azurerm_app_service_plan" "appserviceplan" {
 
 
 resource "azurerm_Linux_web_app" "webapp" {
-  name                = "Webapp5243"
+  name                = "Webapp524333"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   service_plan_id     = azurerm_app_service_plan.appserviceplan.id
